@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome      String
+  email     String   @unique
+  senha     String
+  objetivo Objetivo []
+  diarios   DiarioHumor[]
+  eventos   Calendario[]
+
+  @@map("usuarios")
+}
+
+model Objetivo {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId 
+  usuarioId      String   @db.ObjectId 
+  titulo         String   @db.String   
+  descricao      String?  @db.String    
+  dataCriacao    DateTime @default(now()) 
+  dataConclusao  DateTime? 
+  status         Boolean  @default(false) 
+  
+  usuario Usuario @relation(fields: [usuarioId], references: [id])
+}
+
+model DiarioHumor {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  usuarioId String   @db.ObjectId
+  humor     String
+  data      DateTime @default(now())
+
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+}
+
+model Calendario {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  usuarioId  String   @db.ObjectId
+  titulo     String
+  descricao  String?
+  dataInicio DateTime
+  dataFim    DateTime
+
+  usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+}
